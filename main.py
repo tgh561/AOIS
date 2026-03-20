@@ -43,111 +43,110 @@ def _format_ieee(bits: list[int]) -> str:
 
 
 def _menu() -> None:
-    print("Лабораторная: двоичное счисление")
-    print("1) Перевести целое в прямой/обратный/дополнительный код")
-    print("2) Сложение в дополнительном коде (a + b)")
-    print("3) Вычитание в дополнительном коде (a - b)")
-    print("4) Умножение в прямом коде (a * b)")
-    print("5) Деление в прямом коде с точностью до 5 знаков (a / b)")
-    print("6) Операции float32 по IEEE-754-2008 (32 бит)")
-    print("7) Сложение в Gray BCD (a + b)")
-    print("0) Выход")
+    print("1) коды x")
+    print("2) a+b (доп.)")
+    print("3) a-b (доп.)")
+    print("4) a*b (прям.)")
+    print("5) a/b (прям.,5 дроб.)")
+    print("6) float32 (+-*/)")
+    print("7) a+b (Gray BCD)")
+    print("0) exit")
 
 
 def main() -> None:
     while True:
         _menu()
-        choice = input("Выберите пункт: ").strip()
+        choice = input("> ").strip()
 
         try:
             if choice == "0":
                 break
 
             if choice == "1":
-                x = _read_int("Введите целое число x: ")
+                x = _read_int("x: ")
                 s_bits = trans_into_straight(x)
                 r_bits = trans_into_reverse(x)
                 a_bits = trans_into_additional(x)
 
-                print("Прямой код (2):", _format_bits(s_bits))
-                print("Обратный код (2):", _format_bits(r_bits))
-                print("Дополнительный код (2):", _format_bits(a_bits))
-                print("Десятичное (10):", x)
-                print("Проверка декодированием:")
-                print("  straight ->", bits_to_decimal_straight(s_bits))
-                print("  reverse  ->", bits_to_decimal_reverse(r_bits))
-                print("  add      ->", bits_to_decimal_additional(a_bits))
+                print("s:", _format_bits(s_bits))
+                print("r:", _format_bits(r_bits))
+                print("a:", _format_bits(a_bits))
+                print("10:", x)
+                print(
+                    "dec:",
+                    bits_to_decimal_straight(s_bits),
+                    bits_to_decimal_reverse(r_bits),
+                    bits_to_decimal_additional(a_bits),
+                )
 
             elif choice == "2":
-                a = _read_int("Введите a: ")
-                b = _read_int("Введите b: ")
+                a = _read_int("a: ")
+                b = _read_int("b: ")
                 res_bits = addition(a, b)
                 res_dec = bits_to_decimal_additional(res_bits)
-                print("Результат (доп. код, 2):", _format_bits(res_bits))
-                print("Результат (10):", res_dec)
+                print("2:", _format_bits(res_bits))
+                print("10:", res_dec)
 
             elif choice == "3":
-                a = _read_int("Введите a: ")
-                b = _read_int("Введите b: ")
+                a = _read_int("a: ")
+                b = _read_int("b: ")
                 res_bits = substraction(a, b)
                 res_dec = bits_to_decimal_additional(res_bits)
-                print("Результат (доп. код, 2):", _format_bits(res_bits))
-                print("Результат (10):", res_dec)
+                print("2:", _format_bits(res_bits))
+                print("10:", res_dec)
 
             elif choice == "4":
-                a = _read_int("Введите a: ")
-                b = _read_int("Введите b: ")
+                a = _read_int("a: ")
+                b = _read_int("b: ")
                 res_bits = multiplication(a, b)
                 res_dec = bits_to_decimal_straight(res_bits)
-                print("Результат (прямой код, 2):", _format_bits(res_bits))
-                print("Результат (10):", res_dec)
+                print("2:", _format_bits(res_bits))
+                print("10:", res_dec)
 
             elif choice == "5":
-                a = _read_int("Введите a: ")
-                b = _read_int("Введите b: ")
+                a = _read_int("a: ")
+                b = _read_int("b: ")
                 res_bits = division_direct_fixed(a, b)
                 res_dec = bits_to_decimal_direct_fixed(res_bits, DIV_FRAC_BITS)
-                print("Результат (прямой код фикс. т., 2):", _format_direct_fixed(res_bits, DIV_FRAC_BITS))
-                print("Результат (просто биты):", _format_bits(res_bits))
-                print(f"Результат (10) с точностью до {DIV_FRAC_BITS} дробных бит: {res_dec:.5f}")
+                print("2:", _format_direct_fixed(res_bits, DIV_FRAC_BITS))
+                print("10:", f"{res_dec:.5f}")
 
             elif choice == "6":
-                sub = input("Выберите: 1)+ 2)- 3)* 4)/ : ").strip()
-                a = _read_float("Введите первое число: ")
-                b = _read_float("Введите второе число: ")
+                op = input("op(+ - * /): ").strip()
+                a = _read_float("a: ")
+                b = _read_float("b: ")
 
-                if sub == "1":
+                if op == "+":
                     bits, res_dec = float_add(a, b)
-                    op = "+"
-                elif sub == "2":
+                    sym = "+"
+                elif op == "-":
                     bits, res_dec = float_sub(a, b)
-                    op = "-"
-                elif sub == "3":
+                    sym = "-"
+                elif op == "*":
                     bits, res_dec = float_mul(a, b)
-                    op = "*"
-                elif sub == "4":
+                    sym = "*"
+                elif op == "/":
                     bits, res_dec = float_div(a, b)
-                    op = "/"
+                    sym = "/"
                 else:
-                    print("Неизвестная операция.")
+                    print("bad op")
                     continue
 
-                print(f"IEEE-754 float32: {a} {op} {b} = {res_dec}")
-                print("Биты (2):", _format_bits(bits))
-                print("Разбор:", _format_ieee(bits))
+                print("2:", _format_bits(bits))
+                print("10:", f"{res_dec}")
 
             elif choice == "7":
-                a = _read_int("Введите a (0..10^8-1): ")
-                b = _read_int("Введите b (0..10^8-1): ")
+                a = _read_int("a: ")
+                b = _read_int("b: ")
                 bits, res_dec = gray_bcd_add(a, b)
-                print("Gray BCD (2):", _format_bits(bits))
-                print("Сумма (10):", res_dec)
+                print("2:", _format_bits(bits))
+                print("10:", res_dec)
 
             else:
-                print("Неизвестный пункт меню.")
+                print("bad choice")
 
         except ValueError as e:
-            print("Ошибка:", e)
+            print("err:", e)
 
 
 if __name__ == "__main__":

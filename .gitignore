@@ -1,0 +1,16 @@
+# Виртуальное окружение
+.venv/
+venv/
+ENV/
+
+# Кэш Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Настройки IDE (PyCharm, VS Code)
+.idea/
+.vscode/
+
+# Переменные окружения (секреты)
+.env
