@@ -1,3 +1,35 @@
+# виртуальные окружения
 .venv/
-__pycashe__/
-.coverage/
+venv/
+env/
+
+# байткод и кэш Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# тесты и покрытие
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# инструменты / IDE
+.idea/
+.vscode/
+*.swp
+*~
+
+# сборка
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# OS
+.DS_Store
+Thumbs.db
