@@ -7,6 +7,22 @@ def build_truth_table(ast, vars_list):
     return table
 
 
+def _lex_to_internal_mask(lex_mask, n):
+    internal = 0
+    for i in range(n):
+        if lex_mask & (1 << (n - 1 - i)):
+            internal |= 1 << i
+    return internal
+
+
+def get_truth_vector_lex(table, vars_list):
+    n = len(vars_list)
+    bits = []
+    for lex_mask in range(1 << n):
+        bits.append(str(table[_lex_to_internal_mask(lex_mask, n)]))
+    return "".join(bits)
+
+
 def _evaluate_ast(node, assignment):
     if isinstance(node, str):
         return assignment.get(node, False)
@@ -33,6 +49,7 @@ def print_truth_table(table, vars_list):
     header = " ".join(vars_list) + " | f"
     print(header)
     print("-" * len(header))
-    for mask in range(1 << n):
-        row = " ".join("1" if (mask & (1 << i)) else "0" for i in range(n))
-        print(row, "|", table[mask])
+    for lex_mask in range(1 << n):
+        row = " ".join("1" if (lex_mask & (1 << (n - 1 - i))) else "0" for i in range(n))
+        value = table[_lex_to_internal_mask(lex_mask, n)]
+        print(row, "|", value)

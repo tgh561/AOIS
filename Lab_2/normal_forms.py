@@ -1,3 +1,11 @@
+def _lex_to_internal_mask(lex_mask, n):
+    internal = 0
+    for i in range(n):
+        if lex_mask & (1 << (n - 1 - i)):
+            internal |= 1 << i
+    return internal
+
+
 def get_dnf(table, vars_list):
     n = len(vars_list)
     terms = []
@@ -29,15 +37,27 @@ def get_cnf(table, vars_list):
 
 
 def get_numeric_dnf(table):
-    minterms = [i for i, v in enumerate(table) if v]
+    n = len(table).bit_length() - 1
+    minterms = []
+    for lex_mask in range(1 << n):
+        if table[_lex_to_internal_mask(lex_mask, n)]:
+            minterms.append(lex_mask)
     return f"Σ({', '.join(map(str, minterms))})" if minterms else "Σ(—)"
 
 
 def get_numeric_cnf(table):
-    maxterms = [i for i, v in enumerate(table) if not v]
+    n = len(table).bit_length() - 1
+    maxterms = []
+    for lex_mask in range(1 << n):
+        if not table[_lex_to_internal_mask(lex_mask, n)]:
+            maxterms.append(lex_mask)
     return f"Π({', '.join(map(str, maxterms))})" if maxterms else "Π(—)"
 
 
 def get_index_form(table):
-    num = int("".join(map(str, table[::-1])), 2)   # младший бит = a
+    n = len(table).bit_length() - 1
+    vec = []
+    for lex_mask in range(1 << n):
+        vec.append(str(table[_lex_to_internal_mask(lex_mask, n)]))
+    num = int("".join(vec), 2)
     return f"f = {num}"

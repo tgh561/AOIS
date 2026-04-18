@@ -1,5 +1,5 @@
 from parser import parse_expression
-from truth_table import build_truth_table, print_truth_table
+from truth_table import build_truth_table, print_truth_table, get_truth_vector_lex
 from normal_forms import get_dnf, get_cnf, get_numeric_dnf, get_numeric_cnf, get_index_form
 from post_classes import get_post_classes
 from zhegalkin import get_zhegalkin
@@ -37,6 +37,9 @@ class BooleanFunction:
     def print_all(self):
         print_header(f"Функция: {self.expr}   (переменные: {self.vars})")
         print_truth_table(self.truth_table, self.vars)
+        vec = get_truth_vector_lex(self.truth_table, self.vars)
+        grouped = " ".join(vec[i : i + 8] for i in range(0, len(vec), 8))
+        print("Вектор функции:", grouped)
         print("\nСДНФ:", get_dnf(self.truth_table, self.vars))
         print("СКНФ:", get_cnf(self.truth_table, self.vars))
         print("Числовая СДНФ:", get_numeric_dnf(self.truth_table))
