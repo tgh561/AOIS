@@ -14,6 +14,7 @@ def test_print_all_runs(capsys):
     assert "СДНФ" in out
     assert "СКНФ" in out
     assert "Карта Карно" in out
+    assert "Минимальная КНФ" in out
     assert "Классы Поста" in out
 
 

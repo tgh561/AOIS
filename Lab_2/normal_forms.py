@@ -8,7 +8,7 @@ def get_dnf(table, vars_list):
                 if mask & (1 << i):
                     term.append(vars_list[i])
                 else:
-                    term.append(f"~{vars_list[i]}")
+                    term.append(f"!{vars_list[i]}")
             terms.append(" & ".join(term))
     return " | ".join(terms) or "0"
 
@@ -21,7 +21,7 @@ def get_cnf(table, vars_list):
             term = []
             for i in range(n):
                 if mask & (1 << i):
-                    term.append(f"~{vars_list[i]}")
+                    term.append(f"!{vars_list[i]}")
                 else:
                     term.append(vars_list[i])
             terms.append(" | ".join(term))

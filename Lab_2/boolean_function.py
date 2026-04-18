@@ -47,9 +47,29 @@ class BooleanFunction:
         print("Фиктивные переменные:", get_dummy_vars(self.truth_table, self.vars) or "нет")
         print_derivatives(self.truth_table, self.vars)
         print("\n=== Минимизация ===")
-        print("Расчётный метод (Quine–McCluskey):")
-        quine_mccluskey_minimize(self.truth_table, self.vars, show_stages=True, method="calc")
-        print("\nРасчётно-табличный метод:")
-        quine_mccluskey_minimize(self.truth_table, self.vars, show_stages=True, method="table")
-        print("\nКарта Карно:")
-        print_karnaugh_map(self.truth_table, self.vars)
+        print("--- Расчётный метод (Quine–McCluskey) — ДНФ ---")
+        quine_mccluskey_minimize(
+            self.truth_table, self.vars, show_stages=True, method="calc", form="dnf"
+        )
+        print("--- Расчётный метод — КНФ (склеивание по ¬f) ---")
+        quine_mccluskey_minimize(
+            self.truth_table, self.vars, show_stages=True, method="calc", form="cnf"
+        )
+        print("--- Расчётно-табличный — ДНФ ---")
+        quine_mccluskey_minimize(
+            self.truth_table, self.vars, show_stages=True, method="table", form="dnf"
+        )
+        print("--- Расчётно-табличный — КНФ ---")
+        quine_mccluskey_minimize(
+            self.truth_table, self.vars, show_stages=True, method="table", form="cnf"
+        )
+        print("\n--- Карта Карно — ДНФ (в ячейках f) ---")
+        print_karnaugh_map(
+            self.truth_table, self.vars, caption="Склеивание единиц f → минимальная ДНФ"
+        )
+        print("\n--- Карта Карно — КНФ (в ячейках ¬f; склеивание единиц = макс. дизъюнкты КНФ) ---")
+        print_karnaugh_map(
+            [1 - x for x in self.truth_table],
+            self.vars,
+            caption="1 там, где f = 0",
+        )

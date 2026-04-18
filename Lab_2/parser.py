@@ -1,5 +1,6 @@
 _ARROW = "\x00"
 
+
 def normalize_expression(s: str) -> str:
     s = s.strip().replace(" ", "")
     repl = (
@@ -11,8 +12,6 @@ def normalize_expression(s: str) -> str:
         ("\u00ac", "!"),
         ("→", _ARROW),
         ("\u2192", _ARROW),
-        ("↔", "~"),
-        ("\u2194", "~"),
     )
     for a, b in repl:
         s = s.replace(a, b)
@@ -74,12 +73,12 @@ def find_main_operator(s: str):
             if i + 1 < len(s) and s[i : i + 2] == "->":
                 current_op = "->"
                 op_len = 2
+            elif ch == "~":
+                current_op = "~"
             elif ch == "|":
                 current_op = "|"
             elif ch == "&":
                 current_op = "&"
-            elif ch == "~":
-                current_op = "~"
 
             if current_op:
                 pri, assoc = operators[current_op]
@@ -144,8 +143,6 @@ def parse_expression(expr: str):
         if isinstance(node, str):
             if node in "abcde":
                 vars_set.add(node)
-            elif node not in ("!",):
-                pass
         elif isinstance(node, list):
             if node[0] == "!":
                 collect_vars(node[1])

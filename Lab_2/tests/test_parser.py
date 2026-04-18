@@ -41,9 +41,13 @@ def test_invalid_syntax_raises():
         parse_expression("a&")
 
 
-def test_unary_equivalence_invalid():
+def test_tilde_is_binary_equivalence_only():
     with pytest.raises(ValueError, match="неверный синтаксис"):
         parse_expression("~a")
+
+
+def test_negation_is_bang():
+    assert parse_expression("!a") == ["!", "a"]
 
 
 def test_balanced_parens_required():

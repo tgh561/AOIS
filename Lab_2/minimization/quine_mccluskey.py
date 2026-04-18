@@ -41,13 +41,14 @@ def _merge_pass(cubes):
     return new_cubes, primes
 
 
-def _prime_implicants(minterms, n, show_stages):
+def _prime_implicants(minterms, n, show_stages, stage_note=""):
     current = {(m, (1 << n) - 1) for m in minterms}
     all_primes = set()
     stage = 0
     while current:
         if show_stages:
-            print(f"   Этап склеивания {stage}:")
+            sn = f" {stage_note}" if stage_note else ""
+            print(f"   Этап склеивания {stage}:{sn}")
             for c in sorted(current, key=lambda x: (_ones_count(x), x[0])):
                 print("     ", _cube_bits(c, n))
         nxt, finished = _merge_pass(current)
@@ -80,8 +81,23 @@ def _cube_to_dnf_term(cube, vars_list):
         if (v >> i) & 1:
             parts.append(vars_list[i])
         else:
-            parts.append(f"~{vars_list[i]}")
+            parts.append(f"!{vars_list[i]}")
     return " & ".join(parts) if parts else "1"
+
+
+def _cube_to_cnf_clause(cube, vars_list):
+    v, care = cube
+    parts = []
+    for i in range(len(vars_list)):
+        if not ((care >> i) & 1):
+            continue
+        if (v >> i) & 1:
+            parts.append(f"!{vars_list[i]}")
+        else:
+            parts.append(vars_list[i])
+    if not parts:
+        return "(?)"
+    return "(" + " | ".join(parts) + ")"
 
 
 def _covers(cube, minterm, n):
@@ -155,8 +171,9 @@ def _remove_redundant(cover_idx, prime_list, minterms, n):
     return cover_idx
 
 
-def _print_pi_table(minterms, prime_list, n, vars_list):
-    print("   Таблица покрытия (конституэнты × импликанты):")
+def _print_pi_table(minterms, prime_list, n, vars_list, form):
+    kind = "минтермы" if form == "dnf" else "единицы ¬f (нули f)"
+    print(f"   Таблица покрытия ({kind} × импликанты ¬f):")
     header = "м/п".ljust(6)
     for j, p in enumerate(prime_list):
         header += str(j + 1).center(4)
@@ -166,27 +183,54 @@ def _print_pi_table(minterms, prime_list, n, vars_list):
         for j, p in enumerate(prime_list):
             row += (" X " if _covers(p, m, n) else "   ").center(4)
         print(row)
-    print("   Импликанты:", ", ".join(f"{j+1}:{_cube_to_dnf_term(p, vars_list)}" for j, p in enumerate(prime_list)))
+    if form == "dnf":
+        parts = ", ".join(
+            f"{j+1}:{_cube_to_dnf_term(p, vars_list)}" for j, p in enumerate(prime_list)
+        )
+    else:
+        parts = ", ".join(
+            f"{j+1}:{_cube_to_cnf_clause(p, vars_list)}" for j, p in enumerate(prime_list)
+        )
+    print("   Импликанты ¬f (конъюнкции):", parts)
 
 
-def quine_mccluskey_minimize(table, vars_list, show_stages=True, method="calc"):
+def quine_mccluskey_minimize(
+    table, vars_list, show_stages=True, method="calc", form="dnf"
+):
     n = len(vars_list)
-    minterms = [i for i, v in enumerate(table) if v]
+    label = "ДНФ" if form == "dnf" else "КНФ"
+    if form == "cnf":
+        work = [1 - x for x in table]
+        stage_note = "(по ¬f, нули исходной f)"
+    else:
+        work = table
+        stage_note = ""
+
+    minterms = [i for i, v in enumerate(work) if v]
     if not minterms:
-        print("   0 (постоянный 0)")
+        if form == "dnf":
+            print(f"   {label}: 0 (постоянный 0)")
+        else:
+            print(f"   {label}: 1 (нет нулей f, тавтология)")
         return
     if len(minterms) == 1 << n:
-        print("   1 (постоянная 1)")
+        if form == "dnf":
+            print(f"   {label}: 1 (постоянная 1)")
+        else:
+            print(f"   {label}: 0 (f ≡ 0)")
         return
 
-    primes = _prime_implicants(set(minterms), n, show_stages)
+    primes = _prime_implicants(set(minterms), n, show_stages, stage_note)
     prime_list, rows = _build_chart(minterms, primes, n)
     cover_idx = _minimal_cover(minterms, prime_list, rows)
     cover_idx = _remove_redundant(cover_idx, prime_list, minterms, n)
 
     if method == "table" and show_stages:
-        _print_pi_table(minterms, prime_list, n, vars_list)
+        _print_pi_table(minterms, prime_list, n, vars_list, form)
 
-    terms = [_cube_to_dnf_term(prime_list[j], vars_list) for j in sorted(cover_idx)]
-    result = " | ".join(terms)
-    print("   Минимальная ДНФ:", result)
+    if form == "dnf":
+        terms = [_cube_to_dnf_term(prime_list[j], vars_list) for j in sorted(cover_idx)]
+        print(f"   Минимальная {label}:", " | ".join(terms))
+    else:
+        clauses = [_cube_to_cnf_clause(prime_list[j], vars_list) for j in sorted(cover_idx)]
+        print(f"   Минимальная {label}:", " & ".join(clauses))

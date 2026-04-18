@@ -7,7 +7,7 @@ from minimization.karnaugh import print_karnaugh_map
 def test_qm_constant_zero(capsys):
     ast = parse_expression("a&!a")
     tt = build_truth_table(ast, ["a"])
-    quine_mccluskey_minimize(tt, ["a"], show_stages=False, method="calc")
+    quine_mccluskey_minimize(tt, ["a"], show_stages=False, method="calc", form="dnf")
     out = capsys.readouterr().out
     assert "0" in out
 
@@ -15,7 +15,7 @@ def test_qm_constant_zero(capsys):
 def test_qm_constant_one(capsys):
     ast = parse_expression("a|!a")
     tt = build_truth_table(ast, ["a"])
-    quine_mccluskey_minimize(tt, ["a"], show_stages=False, method="calc")
+    quine_mccluskey_minimize(tt, ["a"], show_stages=False, method="calc", form="dnf")
     out = capsys.readouterr().out
     assert "1" in out
 
@@ -23,10 +23,19 @@ def test_qm_constant_one(capsys):
 def test_qm_xor_like(capsys):
     ast = parse_expression("a&!b|!a&b")
     tt = build_truth_table(ast, ["a", "b"])
-    quine_mccluskey_minimize(tt, ["a", "b"], show_stages=True, method="table")
+    quine_mccluskey_minimize(tt, ["a", "b"], show_stages=True, method="table", form="dnf")
     out = capsys.readouterr().out
     assert "Минимальная ДНФ" in out
     assert "Таблица покрытия" in out
+
+
+def test_qm_cnf_or(capsys):
+    ast = parse_expression("a|b")
+    tt = build_truth_table(ast, ["a", "b"])
+    quine_mccluskey_minimize(tt, ["a", "b"], show_stages=False, method="calc", form="cnf")
+    out = capsys.readouterr().out
+    assert "Минимальная КНФ" in out
+    assert "|" in out
 
 
 def test_karnaugh_three_vars(capsys):
@@ -45,12 +54,13 @@ def test_karnaugh_four_vars(capsys):
     assert "ab" in out or "cd" in out
 
 
-def test_karnaugh_five_vars_message(capsys):
-    ast = parse_expression("a&b&c&d&e")
+def test_karnaugh_five_vars_two_planes(capsys):
+    ast = parse_expression("(a&!b&!c&d)|!e")
     tt = build_truth_table(ast, list("abcde"))
     print_karnaugh_map(tt, list("abcde"))
     out = capsys.readouterr().out
-    assert "5" in out
+    assert "e = 0" in out and "e = 1" in out
+    assert "ab \\ cd" in out
 
 
 def test_karnaugh_zero_vars(capsys):

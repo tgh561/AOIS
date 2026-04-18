@@ -2,7 +2,7 @@ from boolean_function import BooleanFunction
 
 
 def main():
-    print("Анализ булевой функции (переменные a–e, операции &, |, !, ->, ~)")
+    print("Операции из задания: &, |, ! (отрицание), -> (импликация), ~ (эквиваленция)")
     expr = input("Формула: ").strip()
     try:
         BooleanFunction(expr).print_all()
