@@ -6,7 +6,7 @@ from zhegalkin import get_zhegalkin
 from dummy_vars import get_dummy_vars
 from boolean_diff import print_derivatives
 from minimization.quine_mccluskey import quine_mccluskey_minimize
-from minimization.karnaugh import print_karnaugh_map
+from minimization.karnaugh import print_karnaugh_map, karnaugh_minimize
 from utils import print_header
 
 
@@ -66,13 +66,10 @@ class BooleanFunction:
         quine_mccluskey_minimize(
             self.truth_table, self.vars, show_stages=True, method="table", form="cnf"
         )
-        print("\n--- Карта Карно — ДНФ (в ячейках f) ---")
-        print_karnaugh_map(
-            self.truth_table, self.vars, caption="Склеивание единиц f → минимальная ДНФ"
-        )
-        print("\n--- Карта Карно — КНФ (в ячейках ¬f; склеивание единиц = макс. дизъюнкты КНФ) ---")
-        print_karnaugh_map(
-            [1 - x for x in self.truth_table],
-            self.vars,
-            caption="1 там, где f = 0",
-        )
+        print("\n--- Табличный метод (карта Карно) — ДНФ ---")
+        print_karnaugh_map(self.truth_table, self.vars, caption="Склеивание единиц f")
+        karnaugh_minimize(self.truth_table, self.vars, form="dnf", show_groups=True)
+        print("\n--- Табличный метод (карта Карно) — КНФ ---")
+        inv = [1 - x for x in self.truth_table]
+        print_karnaugh_map(inv, self.vars, caption="Склеивание единиц ¬f (нули f)")
+        karnaugh_minimize(self.truth_table, self.vars, form="cnf", show_groups=True)

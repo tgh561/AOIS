@@ -13,7 +13,7 @@ def test_print_all_runs(capsys):
     out = capsys.readouterr().out
     assert "СДНФ" in out
     assert "СКНФ" in out
-    assert "Карта Карно" in out
+    assert "карта карно" in out.lower()
     assert "Минимальная КНФ" in out
     assert "Классы Поста" in out
 

@@ -1,7 +1,7 @@
 from parser import parse_expression
 from truth_table import build_truth_table
 from minimization.quine_mccluskey import quine_mccluskey_minimize
-from minimization.karnaugh import print_karnaugh_map
+from minimization.karnaugh import print_karnaugh_map, karnaugh_minimize
 
 
 def test_qm_constant_zero(capsys):
@@ -61,6 +61,22 @@ def test_karnaugh_five_vars_two_planes(capsys):
     out = capsys.readouterr().out
     assert "e = 0" in out and "e = 1" in out
     assert "ab \\ cd" in out
+
+
+def test_karnaugh_minimize_dnf(capsys):
+    ast = parse_expression("(a&b)|(!a&b)")
+    tt = build_truth_table(ast, ["a", "b"])
+    karnaugh_minimize(tt, ["a", "b"], form="dnf", show_groups=True)
+    out = capsys.readouterr().out
+    assert "Минимальная ДНФ" in out
+
+
+def test_karnaugh_minimize_cnf(capsys):
+    ast = parse_expression("a|b")
+    tt = build_truth_table(ast, ["a", "b"])
+    karnaugh_minimize(tt, ["a", "b"], form="cnf", show_groups=True)
+    out = capsys.readouterr().out
+    assert "Минимальная КНФ" in out
 
 
 def test_karnaugh_zero_vars(capsys):
